@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { adminUnauthorizedResponse, verifyAdminRequest } from "@/lib/admin-server";
 import { formatError } from "@/lib/errors";
 import { createSupabaseClient } from "@/lib/supabase";
 import { averageRating, calculateEloDelta, matchOutcome } from "@/lib/elo";
@@ -10,6 +11,8 @@ interface ParticipantInput {
 }
 
 export async function POST(request: Request) {
+  if (!verifyAdminRequest(request)) return adminUnauthorizedResponse();
+
   try {
     const body = await request.json();
     const { played_at, venue, team_a_score, team_b_score, participants } = body as {

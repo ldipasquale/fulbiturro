@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { adminUnauthorizedResponse, verifyAdminRequest } from "@/lib/admin-server";
 import { formatError } from "@/lib/errors";
 import { createSupabaseClient } from "@/lib/supabase";
 import type { Position } from "@/lib/types";
@@ -7,6 +8,8 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!verifyAdminRequest(request)) return adminUnauthorizedResponse();
+
   try {
     const { id } = await params;
     const body = await request.json();

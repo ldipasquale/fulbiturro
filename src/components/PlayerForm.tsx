@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "./ui/Button";
 import { Dialog } from "./ui/Dialog";
 import { Input, Select } from "./ui/Input";
+import { adminFetch } from "@/lib/admin-client";
 import { POSITIONS, type Player } from "@/lib/types";
 
 interface PlayerFormProps {
@@ -39,7 +40,7 @@ export function PlayerForm({
       const url = editPlayer ? `/api/players/${editPlayer.id}` : "/api/players";
       const method = editPlayer ? "PATCH" : "POST";
 
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

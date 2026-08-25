@@ -8,10 +8,12 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { PageContainer } from "@/components/PageContainer";
 import { EmptyPitch, PageHeader } from "@/components/ui/PlayerAvatar";
+import { useAdmin } from "@/context/AdminContext";
 import { loadMatches } from "@/lib/api-client";
 import type { MatchWithParticipants } from "@/lib/types";
 
 export default function PartidosPage() {
+  const { isUnlocked } = useAdmin();
   const [matches, setMatches] = useState<MatchWithParticipants[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -29,12 +31,14 @@ export default function PartidosPage() {
         title="Partidos"
         subtitle="Historial de encuentros"
         action={
-          <Link href="/partidos/nuevo">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Nuevo
-            </Button>
-          </Link>
+          isUnlocked ? (
+            <Link href="/partidos/nuevo">
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Nuevo
+              </Button>
+            </Link>
+          ) : undefined
         }
       />
 
@@ -46,9 +50,11 @@ export default function PartidosPage() {
         <EmptyPitch
           message="No hay partidos registrados todavía."
           action={
-            <Link href="/partidos/nuevo">
-              <Button>Cargar primer partido</Button>
-            </Link>
+            isUnlocked ? (
+              <Link href="/partidos/nuevo">
+                <Button>Cargar primer partido</Button>
+              </Link>
+            ) : undefined
           }
         />
       ) : (

@@ -7,10 +7,12 @@ import { es } from "date-fns/locale";
 import { Plus, Trophy, Users, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EmptyPitch, PageHeader } from "@/components/ui/PlayerAvatar";
+import { useAdmin } from "@/context/AdminContext";
 import { loadMatches, loadStats } from "@/lib/api-client";
 import type { MatchWithParticipants, PlayerStats } from "@/lib/types";
 
 export default function HomePage() {
+  const { isUnlocked } = useAdmin();
   const [stats, setStats] = useState<PlayerStats[]>([]);
   const [matches, setMatches] = useState<MatchWithParticipants[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,12 +60,14 @@ export default function HomePage() {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <Link href="/partidos/nuevo">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Cargar resultado
-          </Button>
-        </Link>
+        {isUnlocked && (
+          <Link href="/partidos/nuevo">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Cargar resultado
+            </Button>
+          </Link>
+        )}
         <Link href="/jugadores">
           <Button variant="secondary">Ver plantel</Button>
         </Link>

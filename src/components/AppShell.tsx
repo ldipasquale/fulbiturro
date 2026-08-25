@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { AdminProvider } from "@/context/AdminContext";
 import { Nav, SuggestTeamsButton } from "@/components/Nav";
 import { SuggestTeamsDialog } from "@/components/SuggestTeamsDialog";
 import { loadMatches, loadPlayers } from "@/lib/api-client";
 import type { MatchWithParticipants, Player } from "@/lib/types";
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+function AppContent({ children }: { children: React.ReactNode }) {
   const [suggestOpen, setSuggestOpen] = useState(false);
   const [players, setPlayers] = useState<Player[]>([]);
   const [matches, setMatches] = useState<MatchWithParticipants[]>([]);
@@ -28,9 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative z-10 flex min-h-full flex-col">
       <Nav />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
-        {children}
-      </main>
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">{children}</main>
       <SuggestTeamsButton onClick={() => setSuggestOpen(true)} />
       <SuggestTeamsDialog
         open={suggestOpen}
@@ -39,5 +38,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         matches={matches}
       />
     </div>
+  );
+}
+
+export function AppShell({ children }: { children: React.ReactNode }) {
+  return (
+    <AdminProvider>
+      <AppContent>{children}</AppContent>
+    </AdminProvider>
   );
 }

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import { Home, Users, Trophy, BarChart3, Shuffle } from "lucide-react";
+import { Home, Users, Trophy, BarChart3, Shuffle, Lock, Unlock } from "lucide-react";
+import { useAdmin } from "@/context/AdminContext";
 
 const links = [
   { href: "/", label: "Inicio", icon: Home, match: (p: string) => p === "/" },
@@ -19,6 +20,7 @@ const links = [
 
 export function Nav() {
   const pathname = usePathname();
+  const { isUnlocked, lock } = useAdmin();
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/8 bg-pitch-dark/95 backdrop-blur-md">
@@ -27,7 +29,8 @@ export function Nav() {
           <span className="text-2xl">⚽</span>
           <span className="font-display text-2xl tracking-widest text-gold">FULBITO</span>
         </Link>
-        <nav className="flex items-center gap-1">
+        <div className="flex items-center gap-1">
+          <nav className="flex items-center gap-1">
           {links.map(({ href, label, icon: Icon, match }) => (
             <Link
               key={href}
@@ -43,7 +46,21 @@ export function Nav() {
               <span className="hidden sm:inline">{label}</span>
             </Link>
           ))}
-        </nav>
+          </nav>
+          <button
+            type="button"
+            onClick={isUnlocked ? lock : undefined}
+            title={isUnlocked ? "Bloquear edición" : "Solo lectura — tipeá la clave para editar"}
+            className={clsx(
+              "ml-1 rounded-lg p-2 transition-colors",
+              isUnlocked
+                ? "text-gold hover:bg-gold/10"
+                : "cursor-default text-white/30"
+            )}
+          >
+            {isUnlocked ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+          </button>
+        </div>
       </div>
     </header>
   );

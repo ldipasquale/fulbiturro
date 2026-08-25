@@ -7,11 +7,14 @@ import { PageContainer } from "@/components/PageContainer";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { PageHeader } from "@/components/ui/PlayerAvatar";
+import { useAdmin } from "@/context/AdminContext";
+import { adminFetch } from "@/lib/admin-client";
 import { loadPlayers } from "@/lib/api-client";
 import type { Player, TeamSide } from "@/lib/types";
 
 export default function NuevoPartidoPage() {
   const router = useRouter();
+  const { isUnlocked, isReady } = useAdmin();
   const [players, setPlayers] = useState<Player[]>([]);
   const [playedAt, setPlayedAt] = useState(new Date().toISOString().split("T")[0]);
   const [venue, setVenue] = useState("");
@@ -22,6 +25,12 @@ export default function NuevoPartidoPage() {
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (isReady && !isUnlocked) {
+      router.replace("/partidos");
+    }
+  }, [isReady, isUnlocked, router]);
 
   useEffect(() => {
     loadPlayers()
@@ -64,7 +73,7 @@ export default function NuevoPartidoPage() {
         ...Array.from(teamB).map((id) => ({ player_id: id, team: "B" as TeamSide })),
       ];
 
-      const res = await fetch("/api/matches/create", {
+      const res = await adminFetch("/api/matches/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -88,6 +97,14 @@ export default function NuevoPartidoPage() {
       setLoading(false);
     }
   };
+
+  if (!isReady || !isUnlocked) {
+    return (
+      <PageContainer>
+        <p className="text-muted">Redirigiendo...</p>
+      </PageContainer>
+    );
+  }
 
   const assignedIds = new Set([...teamA, ...teamB]);
   const unassigned = players.filter((p) => !assignedIds.has(p.id));

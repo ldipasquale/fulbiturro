@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/Button";
 import { EmptyPitch, PageHeader, PlayerAvatar, PositionBadge } from "@/components/ui/PlayerAvatar";
 import { PageContainer } from "@/components/PageContainer";
 import { PlayerForm } from "@/components/PlayerForm";
+import { useAdmin } from "@/context/AdminContext";
 import { loadPlayers } from "@/lib/api-client";
 import type { Player } from "@/lib/types";
 
 export default function JugadoresPage() {
+  const { isUnlocked } = useAdmin();
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -37,10 +39,12 @@ export default function JugadoresPage() {
         title="Plantel"
         subtitle={`${players.length} jugador${players.length !== 1 ? "es" : ""} en el equipo`}
         action={
-          <Button onClick={() => { setEditPlayer(null); setFormOpen(true); }}>
-            <Plus className="mr-2 h-4 w-4" />
-            Fichar
-          </Button>
+          isUnlocked ? (
+            <Button onClick={() => { setEditPlayer(null); setFormOpen(true); }}>
+              <Plus className="mr-2 h-4 w-4" />
+              Fichar
+            </Button>
+          ) : undefined
         }
       />
 
@@ -52,9 +56,11 @@ export default function JugadoresPage() {
         <EmptyPitch
           message="Todavía no hay jugadores en el plantel."
           action={
-            <Button onClick={() => { setEditPlayer(null); setFormOpen(true); }}>
-              Fichar primer jugador
-            </Button>
+            isUnlocked ? (
+              <Button onClick={() => { setEditPlayer(null); setFormOpen(true); }}>
+                Fichar primer jugador
+              </Button>
+            ) : undefined
           }
         />
       ) : (
@@ -72,12 +78,14 @@ export default function JugadoresPage() {
                   <span className="text-xs text-muted">Turraje {Math.round(p.elo_rating)}</span>
                 </div>
               </div>
-              <button
-                onClick={() => { setEditPlayer(p); setFormOpen(true); }}
-                className="rounded-lg p-2 text-white/40 hover:bg-white/10 hover:text-gold"
-              >
-                <Pencil className="h-4 w-4" />
-              </button>
+              {isUnlocked && (
+                <button
+                  onClick={() => { setEditPlayer(p); setFormOpen(true); }}
+                  className="rounded-lg p-2 text-white/40 hover:bg-white/10 hover:text-gold"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+              )}
             </div>
           ))}
         </div>

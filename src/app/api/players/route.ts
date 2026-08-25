@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { adminUnauthorizedResponse, verifyAdminRequest } from "@/lib/admin-server";
 import { fetchPlayers } from "@/lib/db";
 import { formatError } from "@/lib/errors";
 import { createSupabaseClient } from "@/lib/supabase";
@@ -17,6 +18,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  if (!verifyAdminRequest(request)) return adminUnauthorizedResponse();
+
   try {
     const body = await request.json();
     const { name, photo_url, position, reference_player_id } = body;
