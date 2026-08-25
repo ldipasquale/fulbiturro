@@ -3,7 +3,6 @@
 create table players (
   id uuid primary key default gen_random_uuid(),
   name text not null,
-  nickname text,
   photo_url text,
   position text check (position in ('arquero', 'defensa', 'mediocampo', 'delantero', 'cualquiera')),
   elo_rating numeric not null default 1000,

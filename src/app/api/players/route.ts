@@ -19,7 +19,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, nickname, photo_url, position, reference_player_id } = body;
+    const { name, photo_url, position, reference_player_id } = body;
 
     if (!name?.trim()) {
       return NextResponse.json({ error: "El nombre es obligatorio" }, { status: 400 });
@@ -41,7 +41,6 @@ export async function POST(request: Request) {
       .from("players")
       .insert({
         name: name.trim(),
-        nickname: nickname?.trim() || null,
         photo_url: photo_url?.trim() || null,
         position: (position as Position) || "cualquiera",
         reference_player_id: reference_player_id || null,

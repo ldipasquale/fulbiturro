@@ -10,14 +10,13 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, nickname, photo_url, position } = body;
+    const { name, photo_url, position } = body;
 
     const supabase = createSupabaseClient();
     const { data, error } = await supabase
       .from("players")
       .update({
         ...(name !== undefined && { name: name.trim() }),
-        ...(nickname !== undefined && { nickname: nickname?.trim() || null }),
         ...(photo_url !== undefined && { photo_url: photo_url?.trim() || null }),
         ...(position !== undefined && { position: position as Position }),
       })

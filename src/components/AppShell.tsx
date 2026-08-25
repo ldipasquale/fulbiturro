@@ -26,9 +26,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [loadData]);
 
   return (
-    <>
+    <div className="relative z-10 flex min-h-full flex-col">
       <Nav />
-      <main className="mx-auto max-w-5xl flex-1 px-4 py-6">{children}</main>
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
+        {children}
+      </main>
       <SuggestTeamsButton onClick={() => setSuggestOpen(true)} />
       <SuggestTeamsDialog
         open={suggestOpen}
@@ -36,6 +38,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         players={players}
         matches={matches}
       />
-    </>
+    </div>
   );
 }

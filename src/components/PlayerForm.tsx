@@ -22,7 +22,6 @@ export function PlayerForm({
   editPlayer,
 }: PlayerFormProps) {
   const [name, setName] = useState(editPlayer?.name ?? "");
-  const [nickname, setNickname] = useState(editPlayer?.nickname ?? "");
   const [photoUrl, setPhotoUrl] = useState(editPlayer?.photo_url ?? "");
   const [position, setPosition] = useState(editPlayer?.position ?? "cualquiera");
   const [referenceId, setReferenceId] = useState(
@@ -45,10 +44,9 @@ export function PlayerForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
-          nickname: nickname || null,
           photo_url: photoUrl || null,
           position,
-          ...( !editPlayer && referenceId && { reference_player_id: referenceId }),
+          ...(!editPlayer && referenceId && { reference_player_id: referenceId }),
         }),
       });
 
@@ -70,7 +68,7 @@ export function PlayerForm({
     <Dialog
       open={open}
       onClose={onClose}
-      title={editPlayer ? "Editar jugador" : "Nuevo jugador"}
+      title={editPlayer ? "Editar jugador" : "Fichar jugador"}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Input
@@ -79,12 +77,6 @@ export function PlayerForm({
           onChange={(e) => setName(e.target.value)}
           required
           placeholder="Juan Pérez"
-        />
-        <Input
-          label="Apodo (opcional)"
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-          placeholder="Juancito"
         />
         <Input
           label="Foto (URL)"
@@ -101,19 +93,16 @@ export function PlayerForm({
         />
         {!editPlayer && (
           <Select
-            label="Nivel similar a... (opcional, para jugadores nuevos)"
+            label="Nivel similar a... (opcional)"
             value={referenceId}
             onChange={(e) => setReferenceId(e.target.value)}
             options={[
               { value: "", label: "Sin referencia (nivel promedio)" },
-              ...players.map((p) => ({
-                value: p.id,
-                label: p.nickname ?? p.name,
-              })),
+              ...players.map((p) => ({ value: p.id, label: p.name })),
             ]}
           />
         )}
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-400">{error}</p>}
         <div className="flex gap-2 pt-2">
           <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
             Cancelar

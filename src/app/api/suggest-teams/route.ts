@@ -40,7 +40,7 @@ export async function POST(request: Request) {
           error: "Hay jugadores sin historial. Asignalos a un jugador existente.",
           unknownPlayers: unknownPlayers.map((p) => ({
             id: p.id,
-            name: p.nickname ?? p.name,
+            name: p.name,
           })),
         },
         { status: 422 }

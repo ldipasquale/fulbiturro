@@ -48,7 +48,7 @@ Abrí [http://localhost:3000](http://localhost:3000).
 ## Funcionalidades
 
 ### Jugadores
-- Nombre, apodo, foto (URL), posición
+- Nombre, foto (URL), posición
 - Al crear uno nuevo, podés emparejarlo con un jugador existente para heredar su nivel ELO inicial
 
 ### Partidos

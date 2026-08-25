@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import clsx from "clsx";
+import { PageContainer } from "@/components/PageContainer";
+import { EmptyPitch, PageHeader, PlayerAvatar, PositionBadge } from "@/components/ui/PlayerAvatar";
 import { loadStats } from "@/lib/api-client";
 import type { PlayerStats } from "@/lib/types";
 
@@ -21,37 +23,38 @@ export default function EstadisticasPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p className="text-zinc-500">Cargando estadísticas...</p>;
+  if (loading) {
+    return (
+      <PageContainer>
+        <p className="text-muted">Cargando estadísticas...</p>
+      </PageContainer>
+    );
+  }
 
   if (loadError) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
-        {loadError}
-      </div>
+      <PageContainer>
+        <div className="alert-error">{loadError}</div>
+      </PageContainer>
     );
   }
 
   if (stats.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-zinc-300 p-8 text-center dark:border-zinc-700">
-        <p className="text-zinc-500">No hay estadísticas todavía. Registrá partidos primero.</p>
-      </div>
+      <PageContainer>
+        <EmptyPitch message="No hay estadísticas todavía. Registrá partidos primero." />
+      </PageContainer>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Estadísticas</h1>
-        <p className="text-zinc-600 dark:text-zinc-400">
-          Ranking y detalle por jugador
-        </p>
-      </div>
+    <PageContainer>
+      <PageHeader title="Estadísticas" subtitle="Ranking y ficha por jugador" />
 
-      <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <table className="w-full text-sm">
+      <div className="card w-full overflow-x-auto">
+        <table className="w-full min-w-[640px] text-sm">
           <thead>
-            <tr className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/50">
+            <tr className="border-b border-white/10 text-muted">
               <th className="px-3 py-2 text-left">#</th>
               <th className="px-3 py-2 text-left">Jugador</th>
               <th className="px-3 py-2 text-right">PJ</th>
@@ -61,7 +64,7 @@ export default function EstadisticasPage() {
               <th className="px-3 py-2 text-right">% Vic</th>
               <th className="px-3 py-2 text-right">GF</th>
               <th className="px-3 py-2 text-right">GC</th>
-              <th className="px-3 py-2 text-right">ELO</th>
+              <th className="px-3 py-2 text-right">Turraje</th>
             </tr>
           </thead>
           <tbody>
@@ -70,32 +73,30 @@ export default function EstadisticasPage() {
                 key={s.playerId}
                 onClick={() => setSelected(s)}
                 className={clsx(
-                  "cursor-pointer border-b border-zinc-100 last:border-0 dark:border-zinc-800",
+                  "cursor-pointer border-b border-white/5 last:border-0",
                   selected?.playerId === s.playerId
-                    ? "bg-emerald-50 dark:bg-emerald-950/30"
-                    : "hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                    ? "bg-gold/10"
+                    : "hover:bg-white/5"
                 )}
               >
-                <td className="px-3 py-2 text-zinc-400">{i + 1}</td>
-                <td className="px-3 py-2 font-medium">{s.nickname ?? s.name}</td>
+                <td className="px-3 py-2 text-muted">{i + 1}</td>
+                <td className="px-3 py-2 font-medium text-white">{s.name}</td>
                 <td className="px-3 py-2 text-right">{s.matchesPlayed}</td>
-                <td className="px-3 py-2 text-right text-emerald-600">{s.wins}</td>
-                <td className="px-3 py-2 text-right text-zinc-500">{s.draws}</td>
-                <td className="px-3 py-2 text-right text-red-500">{s.losses}</td>
+                <td className="px-3 py-2 text-right text-green-400">{s.wins}</td>
+                <td className="px-3 py-2 text-right text-muted">{s.draws}</td>
+                <td className="px-3 py-2 text-right text-red-400">{s.losses}</td>
                 <td className="px-3 py-2 text-right">{s.winRate}%</td>
                 <td className="px-3 py-2 text-right">{s.goalsFor}</td>
                 <td className="px-3 py-2 text-right">{s.goalsAgainst}</td>
-                <td className="px-3 py-2 text-right font-semibold">{s.eloRating}</td>
+                <td className="px-3 py-2 text-right font-display text-lg text-gold">{s.eloRating}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      {selected && (
-        <PlayerDetail stats={selected} />
-      )}
-    </div>
+      {selected && <PlayerDetail stats={selected} />}
+    </PageContainer>
   );
 }
 
@@ -106,69 +107,61 @@ function PlayerDetail({ stats }: { stats: PlayerStats }) {
       : `${stats.currentStreak.count}${stats.currentStreak.type === "win" ? "V" : stats.currentStreak.type === "loss" ? "D" : "E"}`;
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="card w-full p-6">
       <div className="mb-4 flex items-center gap-4">
-        {stats.photoUrl ? (
-          <img
-            src={stats.photoUrl}
-            alt={stats.name}
-            className="h-16 w-16 rounded-full object-cover"
-          />
-        ) : (
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-2xl font-bold text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
-            {(stats.nickname ?? stats.name).charAt(0).toUpperCase()}
-          </div>
-        )}
+        <PlayerAvatar player={{ name: stats.name, photo_url: stats.photoUrl }} size="lg" />
         <div>
-          <h2 className="text-xl font-bold">{stats.nickname ?? stats.name}</h2>
-          <p className="text-zinc-500">ELO {stats.eloRating}</p>
+          <h2 className="font-display text-3xl tracking-wide text-white">{stats.name}</h2>
+          <p className="text-gold">Turraje {stats.eloRating}</p>
+          <div className="mt-1">
+            <PositionBadge position={stats.position} />
+          </div>
         </div>
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <MiniStat label="Racha actual" value={streakLabel} />
+        <MiniStat label="Racha" value={streakLabel} />
         <MiniStat
-          label="Forma reciente"
-          value={
-            stats.recentForm.length > 0
-              ? stats.recentForm.join(" ")
-              : "—"
-          }
+          label="Forma (últ. 5)"
+          value={stats.recentForm.length > 0 ? stats.recentForm.join(" ") : "—"}
         />
-        <MiniStat label="Dif. goles" value={`${stats.goalDifference > 0 ? "+" : ""}${stats.goalDifference}`} />
+        <MiniStat
+          label="Dif. goles"
+          value={`${stats.goalDifference > 0 ? "+" : ""}${stats.goalDifference}`}
+        />
         <MiniStat label="% Victorias" value={`${stats.winRate}%`} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <h3 className="mb-2 text-sm font-semibold text-zinc-500">
-            Mejores compañeros (min. 2 partidos)
+          <h3 className="mb-2 font-display text-sm tracking-widest text-gold">
+            Mejores compañeros
           </h3>
           {stats.bestTeammates.length === 0 ? (
-            <p className="text-sm text-zinc-400">Sin datos suficientes</p>
+            <p className="text-sm text-muted">Sin datos suficientes</p>
           ) : (
             <ul className="space-y-1">
               {stats.bestTeammates.map((t) => (
-                <li key={t.playerId} className="flex justify-between text-sm">
+                <li key={t.playerId} className="flex justify-between text-sm text-white">
                   <span>{t.name}</span>
-                  <span className="text-emerald-600">{t.winRate}% ({t.matches} PJ)</span>
+                  <span className="text-green-400">{t.winRate}% ({t.matches} PJ)</span>
                 </li>
               ))}
             </ul>
           )}
         </div>
         <div>
-          <h3 className="mb-2 text-sm font-semibold text-zinc-500">
-            Rivales más difíciles (min. 2 partidos)
+          <h3 className="mb-2 font-display text-sm tracking-widest text-gold">
+            Rivales difíciles
           </h3>
           {stats.toughestOpponents.length === 0 ? (
-            <p className="text-sm text-zinc-400">Sin datos suficientes</p>
+            <p className="text-sm text-muted">Sin datos suficientes</p>
           ) : (
             <ul className="space-y-1">
               {stats.toughestOpponents.map((t) => (
-                <li key={t.playerId} className="flex justify-between text-sm">
+                <li key={t.playerId} className="flex justify-between text-sm text-white">
                   <span>{t.name}</span>
-                  <span className="text-red-500">{t.winRate}% ({t.matches} PJ)</span>
+                  <span className="text-red-400">{t.winRate}% ({t.matches} PJ)</span>
                 </li>
               ))}
             </ul>
@@ -181,9 +174,9 @@ function PlayerDetail({ stats }: { stats: PlayerStats }) {
 
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg bg-zinc-50 p-3 dark:bg-zinc-800/50">
-      <p className="text-xs text-zinc-500">{label}</p>
-      <p className="text-lg font-semibold">{value}</p>
+    <div className="rounded-lg border border-white/10 bg-pitch-dark p-3">
+      <p className="text-xs text-muted">{label}</p>
+      <p className="font-display text-xl text-white">{value}</p>
     </div>
   );
 }

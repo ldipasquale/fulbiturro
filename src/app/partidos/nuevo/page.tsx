@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
+import { PageContainer } from "@/components/PageContainer";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { PageHeader } from "@/components/ui/PlayerAvatar";
 import { loadPlayers } from "@/lib/api-client";
 import type { Player, TeamSide } from "@/lib/types";
 
@@ -30,7 +32,6 @@ export default function NuevoPartidoPage() {
   const togglePlayer = (id: string, team: TeamSide) => {
     const otherTeam = team === "A" ? teamB : teamA;
     const setTeam = team === "A" ? setTeamA : setTeamB;
-    const currentTeam = team === "A" ? teamA : teamB;
 
     if (otherTeam.has(id)) {
       const newOther = new Set(otherTeam);
@@ -92,97 +93,81 @@ export default function NuevoPartidoPage() {
   const unassigned = players.filter((p) => !assignedIds.has(p.id));
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Registrar partido</h1>
-        <p className="text-zinc-600 dark:text-zinc-400">
-          Asigná 5 jugadores por equipo y cargá el resultado
-        </p>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Cargar resultado"
+        subtitle="5 jugadores por equipo · marcador final"
+      />
 
-      {loadError && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
-          {loadError}
-        </div>
-      )}
+      {loadError && <div className="alert-error">{loadError}</div>}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="card space-y-6 p-5">
         <div className="grid gap-4 sm:grid-cols-2">
-          <Input
-            label="Fecha"
-            type="date"
-            value={playedAt}
-            onChange={(e) => setPlayedAt(e.target.value)}
-            required
-          />
-          <Input
-            label="Cancha"
-            value={venue}
-            onChange={(e) => setVenue(e.target.value)}
-            required
-            placeholder="Complejo Los Amigos"
-          />
+          <Input label="Fecha" type="date" value={playedAt} onChange={(e) => setPlayedAt(e.target.value)} required />
+          <Input label="Cancha" value={venue} onChange={(e) => setVenue(e.target.value)} required placeholder="Complejo Los Amigos" />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Input
-            label="Goles Equipo A"
-            type="number"
-            min={0}
-            value={teamAScore}
-            onChange={(e) => setTeamAScore(Number(e.target.value))}
-            required
-          />
-          <Input
-            label="Goles Equipo B"
-            type="number"
-            min={0}
-            value={teamBScore}
-            onChange={(e) => setTeamBScore(Number(e.target.value))}
-            required
-          />
+        <div className="flex items-center justify-center gap-6 py-2">
+          <div className="text-center">
+            <label className="mb-1 block font-display text-sm tracking-widest text-white/60">LOCAL</label>
+            <input
+              type="number"
+              min={0}
+              value={teamAScore}
+              onChange={(e) => setTeamAScore(Number(e.target.value))}
+              required
+              className="score-display w-20 rounded-lg border border-white/20 bg-pitch-dark/60 text-center text-white outline-none focus:border-gold"
+            />
+          </div>
+          <span className="font-display text-3xl text-gold">VS</span>
+          <div className="text-center">
+            <label className="mb-1 block font-display text-sm tracking-widest text-white/60">VISITANTE</label>
+            <input
+              type="number"
+              min={0}
+              value={teamBScore}
+              onChange={(e) => setTeamBScore(Number(e.target.value))}
+              required
+              className="score-display w-20 rounded-lg border border-white/20 bg-pitch-dark/60 text-center text-white outline-none focus:border-gold"
+            />
+          </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <PlayerPicker
-            label={`Equipo A (${teamA.size}/5)`}
+            label={`Local (${teamA.size}/5)`}
             players={players}
             selected={teamA}
             onToggle={(id) => togglePlayer(id, "A")}
-            color="emerald"
+            variant="a"
           />
           <PlayerPicker
-            label={`Equipo B (${teamB.size}/5)`}
+            label={`Visitante (${teamB.size}/5)`}
             players={players}
             selected={teamB}
             onToggle={(id) => togglePlayer(id, "B")}
-            color="blue"
+            variant="b"
           />
         </div>
 
         {unassigned.length > 0 && (
-          <p className="text-sm text-zinc-500">
-            {unassigned.length} jugador{unassigned.length !== 1 && "es"} no participó en este partido
+          <p className="text-sm text-muted">
+            {unassigned.length} jugador{unassigned.length !== 1 && "es"} afuera del partido
           </p>
         )}
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-400">{error}</p>}
 
         <div className="flex gap-3">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => router.back()}
-            className="flex-1"
-          >
+          <Button type="button" variant="secondary" onClick={() => router.back()} className="flex-1">
             Cancelar
           </Button>
           <Button type="submit" disabled={loading} className="flex-1">
-            {loading ? "Guardando..." : "Registrar partido"}
+            {loading ? "Guardando..." : "Guardar partido"}
           </Button>
         </div>
       </form>
-    </div>
+    </PageContainer>
   );
 }
 
@@ -191,24 +176,17 @@ function PlayerPicker({
   players,
   selected,
   onToggle,
-  color,
+  variant,
 }: {
   label: string;
   players: Player[];
   selected: Set<string>;
   onToggle: (id: string) => void;
-  color: "emerald" | "blue";
+  variant: "a" | "b";
 }) {
   return (
-    <div
-      className={clsx(
-        "rounded-xl border p-3",
-        color === "emerald"
-          ? "border-emerald-200 dark:border-emerald-900"
-          : "border-blue-200 dark:border-blue-900"
-      )}
-    >
-      <p className="mb-2 text-sm font-semibold">{label}</p>
+    <div className={clsx("rounded-xl p-3", variant === "a" ? "team-a-bg" : "team-b-bg")}>
+      <p className="mb-2 font-display text-sm tracking-widest text-white/80">{label}</p>
       <div className="max-h-64 space-y-1 overflow-y-auto">
         {players.map((p) => {
           const isSelected = selected.has(p.id);
@@ -219,14 +197,10 @@ function PlayerPicker({
               onClick={() => onToggle(p.id)}
               className={clsx(
                 "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors",
-                isSelected
-                  ? color === "emerald"
-                    ? "bg-emerald-100 dark:bg-emerald-950"
-                    : "bg-blue-100 dark:bg-blue-950"
-                  : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                isSelected ? "bg-gold/25 font-semibold text-white" : "text-white/80 hover:bg-white/10"
               )}
             >
-              <span className="font-medium">{p.nickname ?? p.name}</span>
+              {p.name}
             </button>
           );
         })}

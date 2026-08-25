@@ -90,7 +90,7 @@ function computePairStats(
     .filter(([, s]) => s.total >= 2)
     .map(([playerId, s]) => ({
       playerId,
-      name: playerMap.get(playerId)?.nickname ?? playerMap.get(playerId)?.name ?? "?",
+      name: playerMap.get(playerId)?.name ?? "?",
       winRate: Math.round((s.wins / s.total) * 100),
       matches: s.total,
     }))
@@ -126,7 +126,6 @@ export function computePlayerStats(
   return {
     playerId: player.id,
     name: player.name,
-    nickname: player.nickname,
     photoUrl: player.photo_url,
     position: player.position,
     eloRating: Math.round(player.elo_rating),

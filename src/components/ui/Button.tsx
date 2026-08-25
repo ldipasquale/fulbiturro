@@ -15,12 +15,11 @@ export function Button({
   return (
     <button
       className={clsx(
-        "inline-flex items-center justify-center rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+        "inline-flex items-center justify-center rounded-lg font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50",
         {
-          "bg-emerald-600 text-white hover:bg-emerald-700": variant === "primary",
-          "bg-zinc-100 text-zinc-900 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700":
-            variant === "secondary",
-          "bg-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800": variant === "ghost",
+          "bg-gold text-pitch-dark shadow-md hover:bg-gold-dark hover:shadow-lg": variant === "primary",
+          "border border-white/20 bg-white/10 text-white hover:bg-white/15": variant === "secondary",
+          "bg-transparent text-white/80 hover:bg-white/10 hover:text-white": variant === "ghost",
           "bg-red-600 text-white hover:bg-red-700": variant === "danger",
           "px-3 py-1.5 text-sm": size === "sm",
           "px-4 py-2 text-sm": size === "md",

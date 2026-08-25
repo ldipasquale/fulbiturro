@@ -4,7 +4,6 @@ export type TeamSide = "A" | "B";
 export interface Player {
   id: string;
   name: string;
-  nickname: string | null;
   photo_url: string | null;
   position: Position;
   elo_rating: number;
@@ -46,7 +45,6 @@ export interface PlayerMatchResult {
 export interface PlayerStats {
   playerId: string;
   name: string;
-  nickname: string | null;
   photoUrl: string | null;
   position: Position;
   eloRating: number;

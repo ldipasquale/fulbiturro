@@ -1,26 +1,96 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafafa;
-  --foreground: #18181b;
+  --pitch-dark: #0a1610;
+  --pitch: #1a3d28;
+  --pitch-light: #2a5c3a;
+  --gold: #f5c518;
+  --gold-dark: #d4a017;
+  --card: #0f2118;
+  --card-border: rgba(255, 255, 255, 0.08);
+  --foreground: #f0fdf4;
+  --muted: rgba(240, 253, 244, 0.55);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-pitch-dark: var(--pitch-dark);
+  --color-pitch: var(--pitch);
+  --color-pitch-light: var(--pitch-light);
+  --color-gold: var(--gold);
+  --color-gold-dark: var(--gold-dark);
+  --color-card: var(--card);
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #09090b;
-    --foreground: #fafafa;
-  }
+  --font-display: var(--font-bebas);
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+  background-color: var(--pitch-dark);
+  background-image:
+    radial-gradient(ellipse 90% 60% at 50% -15%, rgba(245, 197, 24, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(120, 200, 140, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 50% at 50% 110%, rgba(34, 120, 70, 0.18) 0%, transparent 50%),
+    linear-gradient(180deg, #0f1f16 0%, #0a1610 45%, #071209 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+.font-display {
+  font-family: var(--font-bebas), var(--font-sans), system-ui, sans-serif;
+  letter-spacing: 0.04em;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.card-hover:hover {
+  border-color: rgba(245, 197, 24, 0.3);
+}
+
+.text-muted {
+  color: var(--muted);
+}
+
+.score-display {
+  font-family: var(--font-bebas), var(--font-sans), sans-serif;
+  font-size: 2.5rem;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+.badge-pos {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(245, 197, 24, 0.12);
+  color: var(--gold);
+  border: 1px solid rgba(245, 197, 24, 0.25);
+}
+
+.alert-error {
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(60, 20, 20, 0.8);
+  color: #fecaca;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  font-size: 0.875rem;
+}
+
+.team-a-bg {
+  background: rgba(26, 90, 55, 0.4);
+  border: 1px solid rgba(74, 222, 128, 0.18);
+}
+
+.team-b-bg {
+  background: rgba(25, 55, 110, 0.35);
+  border: 1px solid rgba(96, 165, 250, 0.15);
 }
