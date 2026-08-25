@@ -1,69 +1,167 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { Plus, Trophy, Users, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { loadMatches, loadStats } from "@/lib/api-client";
+import type { MatchWithParticipants, PlayerStats } from "@/lib/types";
+
+export default function HomePage() {
+  const [stats, setStats] = useState<PlayerStats[]>([]);
+  const [matches, setMatches] = useState<MatchWithParticipants[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    Promise.all([loadStats(), loadMatches()])
+      .then(([s, m]) => {
+        setStats(s);
+        setMatches(m);
+      })
+      .catch((err) =>
+        setLoadError(err instanceof Error ? err.message : "Error al cargar datos")
+      )
+      .finally(() => setLoading(false));
+  }, []);
+
+  const totalMatches = matches.length;
+  const topPlayer = stats[0];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold">Fulbito 5 vs 5</h1>
+        <p className="text-zinc-600 dark:text-zinc-400">
+          Registrá partidos, seguí estadísticas y armá equipos parejos.
+        </p>
+      </div>
+
+      {loadError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
+          {loadError}
+        </div>
+      )}
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatCard
+          icon={<Trophy className="h-5 w-5 text-emerald-600" />}
+          label="Partidos jugados"
+          value={loading ? "..." : String(totalMatches)}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+        <StatCard
+          icon={<Users className="h-5 w-5 text-emerald-600" />}
+          label="Jugadores"
+          value={loading ? "..." : String(stats.length)}
+        />
+        <StatCard
+          icon={<TrendingUp className="h-5 w-5 text-emerald-600" />}
+          label="Líder ELO"
+          value={loading ? "..." : topPlayer ? (topPlayer.nickname ?? topPlayer.name) : "—"}
+        />
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <Link href="/partidos/nuevo">
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Registrar partido
+          </Button>
+        </Link>
+        <Link href="/jugadores">
+          <Button variant="secondary">Ver jugadores</Button>
+        </Link>
+      </div>
+
+      {matches.length > 0 && (
+        <section>
+          <h2 className="mb-3 text-lg font-semibold">Últimos partidos</h2>
+          <div className="space-y-2">
+            {matches.slice(0, 5).map((m) => (
+              <div
+                key={m.id}
+                className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
+              >
+                <div>
+                  <p className="font-medium">
+                    {m.team_a_score} - {m.team_b_score}
+                  </p>
+                  <p className="text-sm text-zinc-500">
+                    {format(new Date(m.played_at + "T12:00:00"), "d MMM yyyy", { locale: es })} · {m.venue}
+                  </p>
+                </div>
+                <span className="text-xs text-zinc-400">
+                  {m.participants.length} jugadores
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {stats.length > 0 && (
+        <section>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Ranking ELO</h2>
+            <Link href="/estadisticas" className="text-sm text-emerald-600 hover:underline">
+              Ver todas las stats
+            </Link>
+          </div>
+          <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/50">
+                  <th className="px-4 py-2 text-left font-medium">#</th>
+                  <th className="px-4 py-2 text-left font-medium">Jugador</th>
+                  <th className="px-4 py-2 text-right font-medium">PJ</th>
+                  <th className="px-4 py-2 text-right font-medium">% Victorias</th>
+                  <th className="px-4 py-2 text-right font-medium">ELO</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.slice(0, 5).map((s, i) => (
+                  <tr key={s.playerId} className="border-b border-zinc-100 last:border-0 dark:border-zinc-800">
+                    <td className="px-4 py-2 text-zinc-400">{i + 1}</td>
+                    <td className="px-4 py-2 font-medium">{s.nickname ?? s.name}</td>
+                    <td className="px-4 py-2 text-right">{s.matchesPlayed}</td>
+                    <td className="px-4 py-2 text-right">{s.winRate}%</td>
+                    <td className="px-4 py-2 text-right font-semibold text-emerald-600">{s.eloRating}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {!loading && stats.length === 0 && (
+        <div className="rounded-xl border border-dashed border-zinc-300 p-8 text-center dark:border-zinc-700">
+          <p className="mb-4 text-zinc-500">Todavía no hay jugadores ni partidos.</p>
+          <Link href="/jugadores">
+            <Button>Agregar primer jugador</Button>
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      )}
+    </div>
+  );
+}
+
+function StatCard({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="mb-2">{icon}</div>
+      <p className="text-2xl font-bold">{value}</p>
+      <p className="text-sm text-zinc-500">{label}</p>
     </div>
   );
 }

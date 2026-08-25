@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fulbito ⚽
 
-## Getting Started
+App para registrar partidos de fútbol 5 vs 5, ver estadísticas por jugador y sugerir equipos balanceados.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (React + API routes)
+- **Supabase** (PostgreSQL, free tier)
+- **Tailwind CSS**
+- Deploy en **Vercel** (free tier)
+
+## Setup local
+
+### 1. Crear proyecto en Supabase
+
+1. Andá a [supabase.com](https://supabase.com) y creá un proyecto gratis.
+2. En el **SQL Editor**, ejecutá el contenido de `supabase/schema.sql`.
+3. En **Settings → API**, copiá:
+   - `Project URL` → `NEXT_PUBLIC_SUPABASE_URL`
+   - `anon public` key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+### 2. Configurar variables de entorno
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.local.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Editá `.env.local` con tus credenciales de Supabase.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Instalar y correr
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run dev
+```
 
-## Learn More
+Abrí [http://localhost:3000](http://localhost:3000).
 
-To learn more about Next.js, take a look at the following resources:
+> **Nota:** Next.js 16 requiere Node.js >= 20.9. Si tenés una versión anterior, instalá Node 20+ con [nvm](https://github.com/nvm-sh/nvm).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy en Vercel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Subí el repo a GitHub.
+2. Importá el proyecto en [vercel.com](https://vercel.com).
+3. Agregá las variables de entorno `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+4. Deploy. Tu app quedará en `tu-proyecto.vercel.app`.
 
-## Deploy on Vercel
+## Funcionalidades
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Jugadores
+- Nombre, apodo, foto (URL), posición
+- Al crear uno nuevo, podés emparejarlo con un jugador existente para heredar su nivel ELO inicial
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Partidos
+- Resultado por goles (con empates)
+- Fecha y cancha
+- 5 jugadores por equipo; el resto del plantel puede quedar afuera
+
+### Estadísticas
+- Partidos jugados, victorias, empates, derrotas, % victorias
+- Goles a favor/en contra del equipo (no goleadores individuales)
+- Racha actual y forma reciente (últimos 5)
+- Mejores compañeros y rivales más difíciles
+- Rating ELO que se actualiza con cada partido
+
+### Sugerir equipos
+- Seleccionás los 10 jugadores del día
+- Si hay jugadores nuevos (sin partidos), te pide emparejarlos con alguien existente
+- El algoritmo balancea equipos usando ELO, forma reciente, posiciones y química entre compañeros
+- Podés pedir otra combinación (hasta 126 posibles)
+
+## Seguridad
+
+La app no tiene login — es para uso personal. Solo vos tenés la URL. No compartas el link públicamente si no querés que otros vean o modifiquen los datos.
