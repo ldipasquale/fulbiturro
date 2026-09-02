@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Plus, Trophy, Users, TrendingUp } from "lucide-react";
+import { Plus, Shirt, Trophy, TrendingUp, Users } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EmptyPitch, PageHeader } from "@/components/ui/PlayerAvatar";
 import { useAdmin } from "@/context/AdminContext";
 import { loadMatches, loadStats } from "@/lib/api-client";
-import { formatMatchResultDisplay, normalizeMatch } from "@/lib/match-result";
+import { computeSideWinRates, formatMatchResultDisplay, normalizeMatch } from "@/lib/match-result";
 import type { MatchWithParticipants, PlayerStats } from "@/lib/types";
+import { TEAM_NAMES } from "@/lib/types";
 
 export default function HomePage() {
   const { isUnlocked } = useAdmin();
@@ -32,6 +33,7 @@ export default function HomePage() {
   }, []);
 
   const topPlayer = stats[0];
+  const sideWinRates = computeSideWinRates(matches);
 
   return (
     <div className="space-y-8">
@@ -42,7 +44,7 @@ export default function HomePage() {
 
       {loadError && <div className="alert-error">{loadError}</div>}
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={<Trophy className="h-6 w-6 text-gold" />}
           label="Partidos jugados"
@@ -53,6 +55,7 @@ export default function HomePage() {
           label="Jugadores"
           value={loading ? "—" : String(stats.length)}
         />
+        <TeamWinRateCard loading={loading} rates={sideWinRates} />
         <StatCard
           icon={<TrendingUp className="h-6 w-6 text-gold" />}
           label="El más turro"
@@ -161,6 +164,37 @@ function StatCard({
       <div className="mb-2">{icon}</div>
       <p className="font-display text-3xl tracking-wide text-white">{value}</p>
       <p className="text-sm text-muted">{label}</p>
+    </div>
+  );
+}
+
+function TeamWinRateCard({
+  loading,
+  rates,
+}: {
+  loading: boolean;
+  rates: ReturnType<typeof computeSideWinRates>;
+}) {
+  const hasDecided = rates.claraWins + rates.oscuraWins > 0;
+
+  return (
+    <div className="card p-4">
+      <div className="mb-2">
+        <Shirt className="h-6 w-6 text-gold" />
+      </div>
+      {loading || !hasDecided ? (
+        <p className="font-display text-3xl tracking-wide text-white">—</p>
+      ) : (
+        <div className="flex items-baseline gap-2 font-display text-3xl tracking-wide">
+          <span className="text-green-300">{rates.claraWinRate}%</span>
+          <span className="text-lg text-white/30">·</span>
+          <span className="text-blue-300">{rates.oscuraWinRate}%</span>
+        </div>
+      )}
+      <p className="text-sm text-muted">
+        {TEAM_NAMES.A} · {TEAM_NAMES.B}
+        {!loading && rates.draws > 0 && ` · ${rates.draws} empate${rates.draws !== 1 ? "s" : ""}`}
+      </p>
     </div>
   );
 }

@@ -53,7 +53,7 @@ Abrí [http://localhost:3000](http://localhost:3000).
 - Al crear uno nuevo, podés emparejarlo con un jugador existente para heredar su nivel ELO inicial
 
 ### Partidos
-- Ganador (Local / Visitante / Empate) y diferencia de goles (por 1, por 3, etc.)
+- Ganador (Clara / Oscura / Empate) y diferencia de goles (por 1, por 3, etc.)
 - Fecha y cancha
 - 5 jugadores por equipo; el resto del plantel puede quedar afuera
 

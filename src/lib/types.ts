@@ -1,6 +1,11 @@
 export type Position = "arquero" | "defensa" | "mediocampo" | "delantero" | "cualquiera";
 export type TeamSide = "A" | "B";
 
+export const TEAM_NAMES: Record<TeamSide, string> = {
+  A: "Clara",
+  B: "Oscura",
+};
+
 export interface Player {
   id: string;
   name: string;

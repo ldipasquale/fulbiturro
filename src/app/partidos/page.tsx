@@ -12,6 +12,7 @@ import { useAdmin } from "@/context/AdminContext";
 import { loadMatches } from "@/lib/api-client";
 import { formatMatchResultDisplay, normalizeMatch } from "@/lib/match-result";
 import type { MatchWithParticipants } from "@/lib/types";
+import { TEAM_NAMES } from "@/lib/types";
 
 export default function PartidosPage() {
   const { isUnlocked } = useAdmin();
@@ -81,8 +82,8 @@ export default function PartidosPage() {
                   <span className="badge-pos shrink-0">{badge}</span>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <TeamList label="Local" players={teamA} variant="a" />
-                  <TeamList label="Visitante" players={teamB} variant="b" />
+                  <TeamList label={TEAM_NAMES.A} players={teamA} variant="a" />
+                  <TeamList label={TEAM_NAMES.B} players={teamB} variant="b" />
                 </div>
               </div>
             );

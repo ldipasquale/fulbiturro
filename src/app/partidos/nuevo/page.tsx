@@ -12,6 +12,7 @@ import { adminFetch } from "@/lib/admin-client";
 import { loadPlayers } from "@/lib/api-client";
 import { formatMatchHeadline } from "@/lib/match-result";
 import type { MatchWinner, Player, TeamSide } from "@/lib/types";
+import { TEAM_NAMES } from "@/lib/types";
 
 const MARGIN_PRESETS = [1, 2, 3, 4, 5] as const;
 
@@ -168,7 +169,7 @@ export default function NuevoPartidoPage() {
           <div className="space-y-6 p-5">
             <div className="grid grid-cols-3 gap-2">
               <WinnerCard
-                label="Local"
+                label={TEAM_NAMES.A}
                 selected={winner === "A"}
                 onClick={() => setResult("A")}
                 variant="a"
@@ -180,7 +181,7 @@ export default function NuevoPartidoPage() {
                 variant="draw"
               />
               <WinnerCard
-                label="Visitante"
+                label={TEAM_NAMES.B}
                 selected={winner === "B"}
                 onClick={() => setResult("B")}
                 variant="b"
@@ -242,7 +243,7 @@ export default function NuevoPartidoPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <PlayerPicker
-              label={`Local (${teamA.size}/5)`}
+              label={`${TEAM_NAMES.A} (${teamA.size}/5)`}
               players={players}
               selected={teamA}
               onToggle={(id) => togglePlayer(id, "A")}
@@ -250,7 +251,7 @@ export default function NuevoPartidoPage() {
               highlightWinner={winner === "A"}
             />
             <PlayerPicker
-              label={`Visitante (${teamB.size}/5)`}
+              label={`${TEAM_NAMES.B} (${teamB.size}/5)`}
               players={players}
               selected={teamB}
               onToggle={(id) => togglePlayer(id, "B")}

@@ -7,6 +7,7 @@ import { Dialog } from "./ui/Dialog";
 import { Select } from "./ui/Input";
 import { PlayerAvatar, PositionBadge } from "./ui/PlayerAvatar";
 import type { MatchWithParticipants, Player, TeamSuggestion } from "@/lib/types";
+import { TEAM_NAMES } from "@/lib/types";
 
 interface SuggestTeamsDialogProps {
   open: boolean;
@@ -217,11 +218,11 @@ export function SuggestTeamsDialog({
       {step === "result" && suggestion && (
         <div>
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-stretch">
-            <TeamColumn title="LOCAL" players={suggestion.teamA} rating={suggestion.teamARating} variant="a" />
+            <TeamColumn title={TEAM_NAMES.A.toUpperCase()} players={suggestion.teamA} rating={suggestion.teamARating} variant="a" />
             <div className="flex items-center justify-center px-2">
               <span className="font-display text-4xl text-gold">VS</span>
             </div>
-            <TeamColumn title="VISITANTE" players={suggestion.teamB} rating={suggestion.teamBRating} variant="b" />
+            <TeamColumn title={TEAM_NAMES.B.toUpperCase()} players={suggestion.teamB} rating={suggestion.teamBRating} variant="b" />
           </div>
           <p className="mb-4 text-center text-sm text-muted">
             Balance: {suggestion.balanceScore} pts

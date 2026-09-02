@@ -1,6 +1,5 @@
-import type { Match, TeamSide } from "./types";
-
-export type MatchWinner = "A" | "B" | "draw";
+import type { Match, MatchWinner, TeamSide } from "./types";
+import { TEAM_NAMES } from "./types";
 
 export function getPlayerResult(
   team: TeamSide,
@@ -23,19 +22,17 @@ export function getSignedGoalDifference(
 
 export function formatMatchResult(winner: MatchWinner, goalDifference: number): string {
   if (winner === "draw") return "Empate";
-  const margin = goalDifference === 1 ? "1 gol" : `${goalDifference} goles`;
-  return winner === "A" ? `Local +${goalDifference}` : `Visitante +${goalDifference}`;
+  return `${TEAM_NAMES[winner]} +${goalDifference}`;
 }
 
 export function formatMatchResultShort(winner: MatchWinner, goalDifference: number): string {
   if (winner === "draw") return "0-0";
-  if (winner === "A") return `+${goalDifference}`;
   return `+${goalDifference}`;
 }
 
 export function formatMatchWinnerBadge(winner: MatchWinner): string {
   if (winner === "draw") return "Empate";
-  return winner === "A" ? "Ganó Local" : "Ganó Visitante";
+  return `Ganó ${TEAM_NAMES[winner]}`;
 }
 
 export function formatMatchHeadline(
@@ -43,8 +40,7 @@ export function formatMatchHeadline(
   goalDifference: number
 ): string {
   if (winner === "draw") return "EMPATE";
-  const side = winner === "A" ? "LOCAL" : "VISITANTE";
-  return `GANÓ ${side} POR ${goalDifference}`;
+  return `GANÓ ${TEAM_NAMES[winner].toUpperCase()} POR ${goalDifference}`;
 }
 
 export function formatMatchResultDisplay(
@@ -83,4 +79,32 @@ export function normalizeMatch(match: Match): {
   const goalDifference = Math.abs(a - b);
   const winner: MatchWinner = a > b ? "A" : b > a ? "B" : "draw";
   return { winner, goalDifference };
+}
+
+export function computeSideWinRates(matches: Match[]): {
+  claraWins: number;
+  oscuraWins: number;
+  draws: number;
+  claraWinRate: number;
+  oscuraWinRate: number;
+} {
+  let claraWins = 0;
+  let oscuraWins = 0;
+  let draws = 0;
+
+  for (const match of matches) {
+    const { winner } = normalizeMatch(match);
+    if (winner === "A") claraWins++;
+    else if (winner === "B") oscuraWins++;
+    else draws++;
+  }
+
+  const total = matches.length;
+  return {
+    claraWins,
+    oscuraWins,
+    draws,
+    claraWinRate: total > 0 ? Math.round((claraWins / total) * 100) : 0,
+    oscuraWinRate: total > 0 ? Math.round((oscuraWins / total) * 100) : 0,
+  };
 }
