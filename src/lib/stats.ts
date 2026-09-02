@@ -3,20 +3,12 @@ import type {
   Player,
   PlayerMatchResult,
   PlayerStats,
-  TeamSide,
 } from "./types";
-
-function getPlayerResult(
-  team: TeamSide,
-  teamAScore: number,
-  teamBScore: number
-): "win" | "loss" | "draw" {
-  const myScore = team === "A" ? teamAScore : teamBScore;
-  const theirScore = team === "A" ? teamBScore : teamAScore;
-  if (myScore > theirScore) return "win";
-  if (myScore < theirScore) return "loss";
-  return "draw";
-}
+import {
+  getPlayerResult,
+  getSignedGoalDifference,
+  normalizeMatch,
+} from "./match-result";
 
 export function buildPlayerMatchHistory(
   playerId: string,
@@ -33,18 +25,18 @@ export function buildPlayerMatchHistory(
         .filter((p) => p.team !== participant.team)
         .map((p) => p.player_id);
 
-      const teamScore =
-        participant.team === "A" ? m.team_a_score : m.team_b_score;
-      const opponentScore =
-        participant.team === "A" ? m.team_b_score : m.team_a_score;
+      const { winner, goalDifference } = normalizeMatch(m);
 
       return {
         matchId: m.id,
         playedAt: m.played_at,
         team: participant.team,
-        teamScore,
-        opponentScore,
-        result: getPlayerResult(participant.team, m.team_a_score, m.team_b_score),
+        goalDifference: getSignedGoalDifference(
+          participant.team,
+          winner,
+          goalDifference
+        ),
+        result: getPlayerResult(participant.team, winner),
         teammates,
         opponents,
       };
@@ -114,8 +106,7 @@ export function computePlayerStats(
   const draws = history.filter((h) => h.result === "draw").length;
   const played = history.length;
 
-  const goalsFor = history.reduce((sum, h) => sum + h.teamScore, 0);
-  const goalsAgainst = history.reduce((sum, h) => sum + h.opponentScore, 0);
+  const goalDifference = history.reduce((sum, h) => sum + h.goalDifference, 0);
 
   const recentForm = history.slice(0, 5).map((h) => {
     if (h.result === "win") return "W" as const;
@@ -134,9 +125,7 @@ export function computePlayerStats(
     losses,
     draws,
     winRate: played > 0 ? Math.round((wins / played) * 100) : 0,
-    goalsFor,
-    goalsAgainst,
-    goalDifference: goalsFor - goalsAgainst,
+    goalDifference,
     currentStreak: computeStreak(history),
     recentForm,
     bestTeammates: computePairStats(history, playerMap, "teammate"),
@@ -170,7 +159,6 @@ export function computeEffectiveRating(
       ? history.filter((h) => h.result === "win").length / played
       : 0.5;
 
-  // Convert win rates (0-1) to ELO-like scale around 1000
   const formRating = 800 + recentForm * 400;
   const winRateRating = 800 + overallWinRate * 400;
 

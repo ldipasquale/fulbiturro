@@ -1,16 +1,17 @@
+import type { MatchWinner } from "./types";
+
 const K_FACTOR = 32;
 
 export function expectedScore(ratingA: number, ratingB: number): number {
   return 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400));
 }
 
-export function matchOutcome(
-  teamScore: number,
-  opponentScore: number
+export function matchOutcomeFromWinner(
+  team: "A" | "B",
+  winner: MatchWinner
 ): 1 | 0.5 | 0 {
-  if (teamScore > opponentScore) return 1;
-  if (teamScore < opponentScore) return 0;
-  return 0.5;
+  if (winner === "draw") return 0.5;
+  return winner === team ? 1 : 0;
 }
 
 export function calculateEloDelta(

@@ -14,9 +14,12 @@ create table matches (
   id uuid primary key default gen_random_uuid(),
   played_at date not null,
   venue text not null,
-  team_a_score integer not null check (team_a_score >= 0),
-  team_b_score integer not null check (team_b_score >= 0),
-  created_at timestamptz not null default now()
+  winner text not null check (winner in ('A', 'B', 'draw')),
+  goal_difference integer not null check (goal_difference >= 0),
+  created_at timestamptz not null default now(),
+  constraint matches_draw_zero_diff check (
+    (winner = 'draw' and goal_difference = 0) or (winner != 'draw' and goal_difference >= 1)
+  )
 );
 
 create table match_participants (

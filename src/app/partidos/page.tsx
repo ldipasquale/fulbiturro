@@ -10,6 +10,7 @@ import { PageContainer } from "@/components/PageContainer";
 import { EmptyPitch, PageHeader } from "@/components/ui/PlayerAvatar";
 import { useAdmin } from "@/context/AdminContext";
 import { loadMatches } from "@/lib/api-client";
+import { formatMatchResultDisplay, normalizeMatch } from "@/lib/match-result";
 import type { MatchWithParticipants } from "@/lib/types";
 
 export default function PartidosPage() {
@@ -62,22 +63,14 @@ export default function PartidosPage() {
           {matches.map((m) => {
             const teamA = m.participants.filter((p) => p.team === "A");
             const teamB = m.participants.filter((p) => p.team === "B");
-            const result =
-              m.team_a_score > m.team_b_score
-                ? "Local"
-                : m.team_b_score > m.team_a_score
-                  ? "Visitante"
-                  : "Empate";
+            const { winner, goalDifference } = normalizeMatch(m);
+            const { headline, badge } = formatMatchResultDisplay(winner, goalDifference);
 
             return (
               <div key={m.id} className="card p-5">
-                <div className="mb-4 flex items-start justify-between">
+                <div className="mb-4 flex items-start justify-between gap-4">
                   <div>
-                    <p className="score-display text-white">
-                      {m.team_a_score}
-                      <span className="mx-2 text-gold">-</span>
-                      {m.team_b_score}
-                    </p>
+                    <p className="score-display text-white">{headline}</p>
                     <p className="mt-1 text-sm text-muted">
                       {format(new Date(m.played_at + "T12:00:00"), "EEEE d MMMM yyyy", {
                         locale: es,
@@ -85,9 +78,7 @@ export default function PartidosPage() {
                       · {m.venue}
                     </p>
                   </div>
-                  <span className="badge-pos">
-                    {result === "Empate" ? "Empate" : `Ganó ${result}`}
-                  </span>
+                  <span className="badge-pos shrink-0">{badge}</span>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <TeamList label="Local" players={teamA} variant="a" />

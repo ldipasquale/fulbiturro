@@ -11,12 +11,18 @@ export interface Player {
   created_at: string;
 }
 
+export type MatchWinner = "A" | "B" | "draw";
+
 export interface Match {
   id: string;
   played_at: string;
   venue: string;
-  team_a_score: number;
-  team_b_score: number;
+  winner: MatchWinner;
+  goal_difference: number;
+  /** @deprecated solo compat con datos viejos */
+  team_a_score?: number;
+  /** @deprecated solo compat con datos viejos */
+  team_b_score?: number;
   created_at: string;
 }
 
@@ -35,8 +41,7 @@ export interface PlayerMatchResult {
   matchId: string;
   playedAt: string;
   team: TeamSide;
-  teamScore: number;
-  opponentScore: number;
+  goalDifference: number;
   result: "win" | "loss" | "draw";
   teammates: string[];
   opponents: string[];
@@ -53,8 +58,6 @@ export interface PlayerStats {
   losses: number;
   draws: number;
   winRate: number;
-  goalsFor: number;
-  goalsAgainst: number;
   goalDifference: number;
   currentStreak: { type: "win" | "loss" | "draw"; count: number };
   recentForm: Array<"W" | "L" | "D">;

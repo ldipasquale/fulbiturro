@@ -15,6 +15,7 @@ App para registrar partidos de fútbol 5 vs 5, ver estadísticas por jugador y s
 
 1. Andá a [supabase.com](https://supabase.com) y creá un proyecto gratis.
 2. En el **SQL Editor**, ejecutá el contenido de `supabase/schema.sql`.
+   - Si ya tenías la base creada con marcadores exactos, ejecutá también `supabase/migration-goal-diff.sql`.
 3. En **Settings → API**, copiá:
    - `Project URL` → `NEXT_PUBLIC_SUPABASE_URL`
    - `anon public` key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
@@ -52,13 +53,13 @@ Abrí [http://localhost:3000](http://localhost:3000).
 - Al crear uno nuevo, podés emparejarlo con un jugador existente para heredar su nivel ELO inicial
 
 ### Partidos
-- Resultado por goles (con empates)
+- Ganador (Local / Visitante / Empate) y diferencia de goles (por 1, por 3, etc.)
 - Fecha y cancha
 - 5 jugadores por equipo; el resto del plantel puede quedar afuera
 
 ### Estadísticas
 - Partidos jugados, victorias, empates, derrotas, % victorias
-- Goles a favor/en contra del equipo (no goleadores individuales)
+- Diferencia de goles acumulada (+dif en victorias, −dif en derrotas)
 - Racha actual y forma reciente (últimos 5)
 - Mejores compañeros y rivales más difíciles
 - Rating ELO que se actualiza con cada partido

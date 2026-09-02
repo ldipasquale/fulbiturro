@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { adminUnauthorizedResponse, verifyAdminRequest } from "@/lib/admin-server";
 import { formatError } from "@/lib/errors";
 import { createSupabaseClient } from "@/lib/supabase";
-import { averageRating, calculateEloDelta, matchOutcome } from "@/lib/elo";
-import type { TeamSide } from "@/lib/types";
+import { averageRating, calculateEloDelta, matchOutcomeFromWinner } from "@/lib/elo";
+import type { MatchWinner, TeamSide } from "@/lib/types";
 
 interface ParticipantInput {
   player_id: string;
@@ -15,17 +15,39 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { played_at, venue, team_a_score, team_b_score, participants } = body as {
+    const { played_at, venue, winner, goal_difference, participants } = body as {
       played_at: string;
       venue: string;
-      team_a_score: number;
-      team_b_score: number;
+      winner: MatchWinner;
+      goal_difference: number;
       participants: ParticipantInput[];
     };
 
     if (!played_at || !venue?.trim()) {
       return NextResponse.json(
         { error: "Fecha y cancha son obligatorias" },
+        { status: 400 }
+      );
+    }
+
+    if (!["A", "B", "draw"].includes(winner)) {
+      return NextResponse.json(
+        { error: "Resultado inválido" },
+        { status: 400 }
+      );
+    }
+
+    const diff = Number(goal_difference);
+    if (winner === "draw") {
+      if (diff !== 0) {
+        return NextResponse.json(
+          { error: "En un empate la diferencia debe ser 0" },
+          { status: 400 }
+        );
+      }
+    } else if (!Number.isInteger(diff) || diff < 1) {
+      return NextResponse.json(
+        { error: "Indicá la diferencia de goles (mínimo 1)" },
         { status: 400 }
       );
     }
@@ -57,8 +79,8 @@ export async function POST(request: Request) {
     const avgA = averageRating(teamARatings);
     const avgB = averageRating(teamBRatings);
 
-    const outcomeA = matchOutcome(team_a_score, team_b_score);
-    const outcomeB = matchOutcome(team_b_score, team_a_score);
+    const outcomeA = matchOutcomeFromWinner("A", winner);
+    const outcomeB = matchOutcomeFromWinner("B", winner);
 
     const deltaA = calculateEloDelta(avgA, avgB, outcomeA);
     const deltaB = calculateEloDelta(avgB, avgA, outcomeB);
@@ -68,8 +90,8 @@ export async function POST(request: Request) {
       .insert({
         played_at,
         venue: venue.trim(),
-        team_a_score,
-        team_b_score,
+        winner,
+        goal_difference: winner === "draw" ? 0 : diff,
       })
       .select()
       .single();

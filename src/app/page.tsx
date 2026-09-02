@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { EmptyPitch, PageHeader } from "@/components/ui/PlayerAvatar";
 import { useAdmin } from "@/context/AdminContext";
 import { loadMatches, loadStats } from "@/lib/api-client";
+import { formatMatchResultDisplay, normalizeMatch } from "@/lib/match-result";
 import type { MatchWithParticipants, PlayerStats } from "@/lib/types";
 
 export default function HomePage() {
@@ -77,21 +78,22 @@ export default function HomePage() {
         <section>
           <h2 className="mb-3 font-display text-2xl tracking-wide text-gold">Últimos partidos</h2>
           <div className="space-y-2">
-            {matches.slice(0, 5).map((m) => (
+            {matches.slice(0, 5).map((m) => {
+              const { winner, goalDifference } = normalizeMatch(m);
+              const { headline } = formatMatchResultDisplay(winner, goalDifference);
+
+              return (
               <div key={m.id} className="card flex items-center justify-between p-4">
                 <div>
-                  <p className="score-display text-white">
-                    {m.team_a_score}
-                    <span className="mx-2 text-gold">-</span>
-                    {m.team_b_score}
-                  </p>
+                  <p className="score-display text-white">{headline}</p>
                   <p className="text-sm text-muted">
                     {format(new Date(m.played_at + "T12:00:00"), "d MMM yyyy", { locale: es })} · {m.venue}
                   </p>
                 </div>
                 <span className="badge-pos">{m.participants.length} jugadores</span>
               </div>
-            ))}
+            );
+            })}
           </div>
         </section>
       )}

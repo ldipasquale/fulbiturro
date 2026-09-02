@@ -62,8 +62,7 @@ export default function EstadisticasPage() {
               <th className="px-3 py-2 text-right">E</th>
               <th className="px-3 py-2 text-right">P</th>
               <th className="px-3 py-2 text-right">% Vic</th>
-              <th className="px-3 py-2 text-right">GF</th>
-              <th className="px-3 py-2 text-right">GC</th>
+              <th className="px-3 py-2 text-right">Dif.</th>
               <th className="px-3 py-2 text-right">Turraje</th>
             </tr>
           </thead>
@@ -86,8 +85,10 @@ export default function EstadisticasPage() {
                 <td className="px-3 py-2 text-right text-muted">{s.draws}</td>
                 <td className="px-3 py-2 text-right text-red-400">{s.losses}</td>
                 <td className="px-3 py-2 text-right">{s.winRate}%</td>
-                <td className="px-3 py-2 text-right">{s.goalsFor}</td>
-                <td className="px-3 py-2 text-right">{s.goalsAgainst}</td>
+                <td className="px-3 py-2 text-right">
+                  {s.goalDifference > 0 ? "+" : ""}
+                  {s.goalDifference}
+                </td>
                 <td className="px-3 py-2 text-right font-display text-lg text-gold">{s.eloRating}</td>
               </tr>
             ))}
